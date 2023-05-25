@@ -34,6 +34,7 @@ export default {
 
       items : [], // [생성] 버튼 클릭 후 항목담는 데이터
       text : "1,2,3,4,5,6,7,8", // 항목 저장
+      itemResult : null,
       theWheel: null, // 돌림판 인스턴스
       makeSegments: 0
 
@@ -147,8 +148,6 @@ export default {
     },
 
     alertPrize() {
-      let status = 200;
-
       const winningSegment = this.theWheel.getIndicatedSegment();
       const index = this.theWheel.segments.indexOf(winningSegment);
       const position = index ;
@@ -160,9 +159,9 @@ export default {
 
       this.theWheel.segments[winningSegmentNumber].fillStyle = 'white';
       this.theWheel.draw();
-
+      this.itemResult = winningSegment.text
       Swal.fire({
-        title: `Index >>> ${position} : ${winningSegment.text} \n Do you want Save ? ` ,
+        title: `당첨 된 아이템 : ${this.itemResult} \n Do you want Save ? ` ,
         showDenyButton : true,
         icon: 'success'
       })
@@ -224,7 +223,7 @@ export default {
     async onSave() {
       const data = {
         'item_list' : this.text,
-        'item_result' : '5'
+        'item_result' : this.itemResult
       }
       await axios.post('/roule/front/roulette', data)
       .then(response => {
