@@ -1,5 +1,21 @@
-const { defineConfig } = require('@vue/cli-service')
-module.exports = defineConfig({
-  transpileDependencies: true,
-  lintOnSave : false
-})
+// vue.config.js
+module.exports = {
+    transpileDependencies: ['vuetify'],
+
+    // Backend
+    outputDir: "C:/Users/sungmin/Documents/vscode_spring/demo/src/main/resources/static",
+
+    // Proxy settings
+    devServer: {
+      proxy: {
+        '/': {
+          target: 'http://localhost:9090', // Backend Server
+          changeOrigin: true,
+        },
+      },
+    },
+
+    configureWebpack: {
+      // Webpack configuration options
+    }
+  };
