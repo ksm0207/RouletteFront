@@ -1,23 +1,31 @@
 <template>
   <div>
-    <h4>Canvas</h4>
     <div v-if="item !== null">
       <span v-for="(item,index) in items">
-        {{item}}
+        {{item}} 
         <button @click="deleteItem(index)">x</button>
       </span>
     </div>
     <div>
       <input type="text" v-model="text" />
     </div>
-    <canvas id="myCanvas" width="600" height="400"></canvas>
+    <canvas id="myCanvas" width="600" height="400" margin-top="50"></canvas>
     <div>
-      <el-button type="primary" v-on:click="createSegments()">Create Segments!</el-button>
-      <el-button type="primary" v-on:click="refreshSegments()">Create Segments!</el-button>
-      <el-button type="primary" v-on:click="rouletteStart()">Create Segments!</el-button>
+      <el-button type="primary" v-on:click="createSegments()">항목 추가</el-button>
+      <el-button type="primary" v-on:click="rouletteStart()">룰렛 돌리기</el-button>
+      <el-button id="resultViewText" type="primary" v-on:click="rouletteResultView()">룰렛 결과보기</el-button>
+      <el-button type="primary" v-on:click="refreshSegments()">새로 고침</el-button>
     </div>
     <div>
     </div>
+    <div>
+      <RouletteResult 
+      v-show="resultViewOnOff"
+      :resultAllList="this.resultAllList"
+      />
+
+    </div>
+
   </div>
 </template>
 
@@ -27,26 +35,38 @@ import { TweenMax } from 'gsap/all'
 import Swal from 'sweetalert2'
 import axios from 'axios'
 
+import RouletteResult from './RouletteResult.vue';
+
 export default {
   data() {
 
     return {
-
       items : [], // [생성] 버튼 클릭 후 항목담는 데이터
-      text : "1,2,3,4,5,6,7,8", // 항목 저장
-      itemResult : null,
+      text : null, // 항목 저장
+      itemResult : null, // 당첨된 아이템
       theWheel: null, // 돌림판 인스턴스
-      makeSegments: 0
-
+      makeSegments: 0,
+      resultViewOnOff : false, // 룰렛결과보기 on/off
+      resultAllList : [],
+      anonymous : null // 익명 사용자
     }
+  },
+
+  components : {
+    RouletteResult : RouletteResult
   },
 
   methods: {
 
     deleteItem(index) {
       // TODO index
+      if(index < 3) {
+        Swal.fire('pass')
+        return false
+      }
       this.items.splice(index, 1)
       this.text = this.items.join(",")
+      
       this.createSegments()
     },
 
@@ -123,6 +143,7 @@ export default {
       let defaultSegments = 2
       if(this.theWheel.numSegments > 2) {
         this.createWheel(defaultSegments)
+        this.item = null
       }else{
         Swal.fire({
           'title' : 'Test',
@@ -148,9 +169,9 @@ export default {
     },
 
     alertPrize() {
+
       const winningSegment = this.theWheel.getIndicatedSegment();
       const index = this.theWheel.segments.indexOf(winningSegment);
-      const position = index ;
 
       let winningSegmentNumber = this.theWheel.getIndicatedSegmentNumber();
       for (let x = 1; x < this.theWheel.segments.length; x ++) {
@@ -161,22 +182,21 @@ export default {
       this.theWheel.draw();
       this.itemResult = winningSegment.text
       Swal.fire({
-        title: `당첨 된 아이템 : ${this.itemResult} \n Do you want Save ? ` ,
+        title: `당첨 : ${this.itemResult} \n  결과를 저장할까요 ?` ,
         showDenyButton : true,
         icon: 'success'
       })
       .then((result => {
         if(result.isConfirmed) {
-          console.log("Save")
-          this.onSave()
-          // if (status === 200) {
-          //   Swal.fire('Success!','Data Save','success')
-          // }
+          const saveResult = this.onSave()
+          if(saveResult.status === 200) {
+            // 저장 후 처리할 로직 생각하기
+            console.log("DB Save " , saveResult.data)
+          }
         }else {
           console.log("Not Save")
           return false;
         }
-
       }))
     },
 
@@ -207,23 +227,14 @@ export default {
         showDenyButton : true,
       })
       .then((result) =>{
-
-      })
-    },
-
-    async apiTest () {
-      await axios.post('/roule/front')
-      .then(response =>{
-        console.log("Reponse : " , response)
-      })
-      .catch(error =>{
-        console.log("Error" , error)
+        
       })
     },
     async onSave() {
       const data = {
         'item_list' : this.text,
-        'item_result' : this.itemResult
+        'item_result' : this.itemResult,
+        'name'  : this.anonymous
       }
       await axios.post('/roule/front/roulette', data)
       .then(response => {
@@ -232,14 +243,37 @@ export default {
       .catch(error =>{
         console.log("Save Error... " , error)
       })
+    },
+    async rouletteResultView() {
+      await axios.post('/roule/front/roulette/result',null)
+      .then(response => {
+        if(response.data !== null) {
+          this.resultAllList = response.data
+          console.log("Result List : " , this.resultAllList)
+          this.viewYn()
+        }
+        
+      })
+      .catch(error =>{
+        console.log('결과에러 : ' , error)
+      })
+
+    },
+
+    viewYn() {
+
+      let buttonElement = document.getElementById('resultViewText');
+      let spanElement = buttonElement.querySelector('span')
+      if(spanElement !== null) {
+          spanElement.innerText = '룰렛 결과닫기'
+          this.resultViewOnOff = !this.resultViewOnOff
+      }
+      if(!this.resultViewOnOff)
+        spanElement.innerText = '룰렛 결과보기'
     }
-
   },
-
-
-
   mounted() {
-    this.createWheel(2); // Initial number of segments
+    this.createWheel(3); // Initial number of segments
   },
 }
 </script>
