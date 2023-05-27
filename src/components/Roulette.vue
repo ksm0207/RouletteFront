@@ -13,8 +13,9 @@
     <div>
       <el-button type="primary" v-on:click="createSegments()">항목 추가</el-button>
       <el-button type="primary" v-on:click="rouletteStart()">룰렛 돌리기</el-button>
-      <el-button id="resultViewText" type="primary" v-on:click="rouletteResultView()">룰렛 결과보기</el-button>
-      <el-button type="primary" v-on:click="refreshSegments()">새로 고침</el-button>
+      <el-button id="resultViewText" type="primary" v-on:click="rouletteResultView()">룰렛 현황보기</el-button>
+      <el-button type="primary" v-on:click="refreshSegments()">룰렛 새로고침</el-button>
+      <el-button type="primary" v-on:click="showGuestBookView()">방명록</el-button>
     </div>
     <div>
     </div>
@@ -140,7 +141,7 @@ export default {
     // 새로고침
     // TODO : 새로고침 클릭 후 배열의 길이 어떻게 할지 고려하기
     refreshSegments () {
-      let defaultSegments = 2
+      let defaultSegments = 3
       if(this.theWheel.numSegments > 2) {
         this.createWheel(defaultSegments)
         this.item = null
@@ -218,16 +219,6 @@ export default {
       ctx.stroke();                 // Complete the path by stroking (draw lines).
       ctx.fill();                   // Then fill.
     },
-
-    alertTest () {
-      Swal.fire({
-        title : 'Do you want to data ?',
-        showDenyButton : true,
-      })
-      .then((result) =>{
-
-      })
-    },
     async onSave() {
       const data = {
         'item_list' : this.text,
@@ -259,17 +250,26 @@ export default {
       })
 
     },
-
     viewYn() {
-
       let buttonElement = document.getElementById('resultViewText');
       let spanElement = buttonElement.querySelector('span')
       if(spanElement !== null) {
-          spanElement.innerText = '룰렛 결과닫기'
+          spanElement.innerText = '룰렛 현황닫기'
           this.resultViewOnOff = !this.resultViewOnOff
       }
       if(!this.resultViewOnOff)
-        spanElement.innerText = '룰렛 결과보기'
+        spanElement.innerText = '룰렛 현황보기'
+    },
+    showGuestBookView() {
+      const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      const windowWidth = 800;
+      const windowHeight = 600;
+      const left = (screenWidth - windowWidth) / 2;
+      const top = (screenHeight - windowHeight) / 2;
+      const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top}`;
+
+      window.open('/guestBook', 'Guestbook', windowFeatures);
     }
   },
   mounted() {

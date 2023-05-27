@@ -1,23 +1,12 @@
 <template>
-    <div style="margin-top:50px">
-        <table v-for="item in resultAllList">
-            <thead>
-                <tr>
-                    <th>사용자</th>
-                    <th>입력 항목</th>
-                    <th>룰렛 결과</th>
-                    <th>시작 시간</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>{{item.name}}</td>
-                    <td>{{item.item_list}}</td>
-                    <td>{{item.item_result}}</td>
-                    <td>{{item.start_date}}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <div style="margin-top: 50px">
+    <el-table :data="resultAllList" style="width: 100%">
+      <el-table-column prop="name" label="User"></el-table-column>
+      <el-table-column prop="item_list" label="입력 항목"></el-table-column>
+      <el-table-column prop="item_result" label="룰렛 결과"></el-table-column>
+      <el-table-column prop="start_date" label="시작 시간"></el-table-column>
+    </el-table>
+  </div>
 </template>
 <script>
 export default {
