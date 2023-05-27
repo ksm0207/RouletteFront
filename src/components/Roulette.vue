@@ -268,8 +268,8 @@ export default {
       const left = (screenWidth - windowWidth) / 2;
       const top = (screenHeight - windowHeight) / 2;
       const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top}`;
-
       window.open('/guestBook', 'Guestbook', windowFeatures);
+
     }
   },
   mounted() {
