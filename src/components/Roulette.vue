@@ -2,7 +2,7 @@
   <div>
     <div v-if="item !== null">
       <span v-for="(item,index) in items">
-        {{item}} 
+        {{item}}
         <button @click="deleteItem(index)">x</button>
       </span>
     </div>
@@ -19,7 +19,7 @@
     <div>
     </div>
     <div>
-      <RouletteResult 
+      <RouletteResult
       v-show="resultViewOnOff"
       :resultAllList="this.resultAllList"
       />
@@ -66,7 +66,7 @@ export default {
       }
       this.items.splice(index, 1)
       this.text = this.items.join(",")
-      
+
       this.createSegments()
     },
 
@@ -191,10 +191,8 @@ export default {
           const saveResult = this.onSave()
           if(saveResult.status === 200) {
             // 저장 후 처리할 로직 생각하기
-            console.log("DB Save " , saveResult.data)
           }
         }else {
-          console.log("Not Save")
           return false;
         }
       }))
@@ -227,7 +225,7 @@ export default {
         showDenyButton : true,
       })
       .then((result) =>{
-        
+
       })
     },
     async onSave() {
@@ -247,12 +245,14 @@ export default {
     async rouletteResultView() {
       await axios.post('/roule/front/roulette/result',null)
       .then(response => {
-        if(response.data !== null) {
+        if(response.data.length > 0) {
           this.resultAllList = response.data
-          console.log("Result List : " , this.resultAllList)
           this.viewYn()
+        }else {
+          Swal.fire('결과가 없습니다.');
+          return false
         }
-        
+
       })
       .catch(error =>{
         console.log('결과에러 : ' , error)
