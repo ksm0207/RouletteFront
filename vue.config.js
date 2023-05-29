@@ -3,7 +3,8 @@ module.exports = {
     transpileDependencies: ['vuetify'],
 
     // Backend
-    outputDir: "C:/Users/sungmin/Documents/vscode_spring/demo/src/main/resources/static",
+    outputDir: "C:/Users/sungmin/Documents/Github/RouletteBackend/demo/src/main/resources/static",
+
 
     // Proxy settings
     devServer: {
