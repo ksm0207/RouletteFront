@@ -7,15 +7,19 @@
           <el-input type="textarea" v-model="message"></el-input>
         </el-form-item>
 
-        <el-form-item label="비밀번호">
-          <el-input type="password"
-                    size="small"
-                    :style="{ width: '50px', margin: '0 10px' }"
-                    v-model="passwd">
-          </el-input>
-
-          <el-checkbox v-model="secretYn" style="margin-left: 10px;">공개여부</el-checkbox>
-        </el-form-item>
+        <el-row>
+          <el-col :span="6" v-if="secretYn">
+            <el-form-item label="Password">
+              <el-input
+                type="password"
+                size="small"
+                :style="{ width: '200px', margin: '0 10px' }"
+                v-model="passwd"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+            <el-checkbox v-model="secretYn" style="margin-left: 1px;">비공개</el-checkbox>
+        </el-row>
 
         <el-form-item>
           <el-button type="primary" @click="submit">저장</el-button>
@@ -49,6 +53,8 @@
 
 import axios from 'axios'
 import Swal from 'sweetalert2'
+
+
 export default {
 
   data() {
@@ -175,6 +181,11 @@ export default {
   },
   mounted() {
     this.currentViewOnCheck()
+  },
+  watch : {
+    secretYn () {
+      console.log("secretYn " , this.secretYn)
+    }
   }
 }
 </script>
