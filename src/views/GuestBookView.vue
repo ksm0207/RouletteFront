@@ -21,16 +21,20 @@
           <el-button type="primary" @click="submit">저장</el-button>
         </el-form-item>
 
-
       </el-form>
     </el-card>
     <el-card v-for="(item, index) in this.displayedEntries" :key="index">
-      <p>{{ item.message }}</p>
-      <p>
-        Likes: {{item.like_count}}
-        <el-icon name="el-icon-like" v-for="n in item.like_count" :key="n"></el-icon>
-      </p> <!-- Display the likes as icons -->
-      <el-button type="danger" @click="deleteEntry(index)">Delete</el-button>
+      <p class="isSecretText" v-if="item.secretYn === 'true'" @click="isSecretItem(item)">
+        비밀 글 입니다
+      </p>
+      <p v-else>
+        {{ item.message }}
+      </p>
+      <p><i class="fa fa-thumbs-up"></i> {{item.like_count}}</p>
+      <div class="entry-info">
+        <el-button type="danger" @click="deleteEntry(index)">Delete</el-button>
+        <p class="created-time">작성시간 : {{ item.insert_date }}</p>
+      </div>
     </el-card>
     <el-pagination
       layout="prev, pager, next"
@@ -44,6 +48,7 @@
 <script>
 
 import axios from 'axios'
+import Swal from 'sweetalert2'
 export default {
 
   data() {
@@ -55,7 +60,12 @@ export default {
       likes : null,     // 좋아요 수
       guestbookEntries: [], // 방명록 리스트
       currentPage: 1,       // 현재페이지 1
-      pageSize: 5           // 페이지 수
+      pageSize: 3,           // 페이지 수
+      currentSecretItem : null, // 현재 비밀글 처리중인 아이템
+      modalVisible : false, // Modal 표시 여부
+      secretPasswd : null,   // 비밀 글 입력번호,
+      secretData : null,
+      isCheck : false
     };
   },
   computed: {
@@ -76,8 +86,11 @@ export default {
       };
       await axios.post('/guestBook/submit',newGuestBookData)
         .then(response => {
-          if(response.status === 200 )
+          if(response.status === 200 ){
             this.currentViewOnCheck()
+            this.passwd = null
+            this.secretYn = false
+          }
         })
         .catch(error =>{
 
@@ -88,7 +101,9 @@ export default {
     },
     // 삭제하기 (미구현)
     deleteEntry(index) {
-      this.guestbookEntries.splice(index, 1);
+      if(this.isCheck) {
+        this.guestbookEntries.splice(index, 1);
+      }
     },
     // 페이징네이션
     handlePageChange(page) {
@@ -103,7 +118,60 @@ export default {
         .catch(error =>{
           console.log("/guestBook/getGuestBookAllList Error" , error)
         })
+    },
+    // 비밀 글 Modal 처리
+    isSecretItem (item) {
+      this.currentSecretItem = item.guest_seq;
+      Swal.fire({
+        title : '비밀번호 확인',
+        input : 'password',
+        inputAttributes : {autocapitalize : 'off'},
+        showCancelButton: true,
+        confirmButtonText: '확인',
+        cancelButtonText : '취소',
+        showLoaderOnConfirm: true,
+        preConfirm : async (data) => {
+
+          const passwd = data
+          const secretIndex = this.currentSecretItem
+          const getSecretGuestBook = {
+            'passwd'    : passwd,
+            'guest_seq' : secretIndex
+          }
+          try {
+            await axios.post('/guestBook/secretGuestBook' , getSecretGuestBook)
+              .then(response =>{
+
+                if(response.data !== '') {
+                  Swal.fire({title : '비밀번호 검증성공 '})
+                  this.secretData = response.data
+                  console.log("검증결과 : " , this.secretData)
+                  this.isCheck = true;
+
+                  this.changeEntry(this.secretData.guest_seq);
+                }else{
+                  Swal.fire({title : '비밀번호 검증실패 '})
+                }
+              })
+              .catch(error =>{
+                console.log("비밀번호 찾기 API 에러: ", error);
+              })
+          }catch (error){
+            throw new Error('서버요청 에러')
+          }
+        }
+      // }).then(result =>{
+      //   console.log("비밀번호 검증완료" , result.value , this.secretData.passwd)
+      })
+    },
+    changeEntry (seq) {
+      const entry = this.guestbookEntries.find(e => e.guest_seq == seq);
+      if(entry) {
+        entry.secretYn = false;
+      }
     }
+
+
   },
   mounted() {
     this.currentViewOnCheck()
@@ -113,6 +181,21 @@ export default {
 
 <style scoped>
 
+.isSecretText {
+  text-align: center;
+  cursor: pointer;
+}
+
+.entry-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.created-time {
+  margin-left: 10px;
+}
 
 .pagination-container {
   display: flex;
