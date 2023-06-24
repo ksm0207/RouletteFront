@@ -1,6 +1,7 @@
 // vue.config.js
 module.exports = {
   transpileDependencies: ['vuetify'],
+  // lintOnSave: false,
 
   // Backend
   outputDir: 'C:/Users/sungmin/Documents/Github/RouletteBackend/demo/src/main/resources/static',

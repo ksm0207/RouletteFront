@@ -1,21 +1,21 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 // import Roulette from '../components/Roulette.vue'
-import Home from '../views/Home.vue'
-import GuestBookView from "@/views/GuestBookView.vue";
+import Home from '../views/Home.vue';
+import GuestBookView from '@/views/GuestBookView.vue';
 
 const routes = [
   {
     path: '/',
-    component : Home
+    component: Home
   },
   {
     path: '/guestBook',
-    component : GuestBookView
+    component: GuestBookView
   }
-]
+];
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
-})
+});
 
-export default router
+export default router;

@@ -1,17 +1,15 @@
 <template>
-    <div>
-        <RouletteVue />
-    </div>
+  <div>
+    <RouletteVue />
+  </div>
 </template>
 
 <script>
-
-import RouletteVue from '../components/Roulette.vue'
+import RouletteVue from '../components/Roulette.vue';
 
 export default {
-    components : {
-        RouletteVue : RouletteVue
-    }
-} 
-
+  components: {
+    RouletteVue: RouletteVue
+  }
+};
 </script>

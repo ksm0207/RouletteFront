@@ -27,6 +27,7 @@ module.exports = {
         bracketSpacing: true,
         arrowParens: 'avoid'
       }
-    ]
+    ],
+    'vue/multi-word-component-names': 0
   }
 };
