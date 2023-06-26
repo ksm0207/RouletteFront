@@ -10,20 +10,21 @@
 </template>
 <script>
 export default {
-    props : {
-        resultAllList : Object
-    },
-}
+  props: {
+    resultAllList: Object
+  }
+};
 </script>
 
 <style scoped>
- table {
-    width: 100%;
-    border: 1px solid #444444;
-    border-collapse: collapse;
-  }
-  th, td {
-    border: 1px solid #444444;
-    padding: 10px;
-  }
+table {
+  width: 100%;
+  border: 1px solid #444444;
+  border-collapse: collapse;
+}
+th,
+td {
+  border: 1px solid #444444;
+  padding: 10px;
+}
 </style>
