@@ -1,15 +1,22 @@
 <template>
-  <div>
-    <div v-if="item !== null">
-      <span v-for="(item, index) in items">
+  <div class="router-wrapper">
+    <div class="roulette-wrapper">
+      <canvas id="myCanvas" width="400" height="400"></canvas>
+      <span class="pin"> ◀︎ </span>
+    </div>
+
+
+    <div v-if="item !== null" class="item-list">
+      <span v-for="(item, index) in items" class="item">
         {{ item }}
-        <button @click="deleteItem(index)">x</button>
+        <el-button class="delete-button" size="mini" @click="deleteItem(index)">x</el-button>
       </span>
     </div>
+
     <div>
-      <input type="text" v-model="text" />
+      <el-input class="el-input--large" type="text" v-model="text" placeholder="여기에 항목을 입력하세요. (ex 딸기,사과,망고,...)" />
     </div>
-    <canvas id="myCanvas" width="600" height="400" margin-top="50"></canvas>
+
     <div>
       <el-button type="primary" v-on:click="createSegments()">항목 추가</el-button>
       <el-button type="primary" v-on:click="rouletteStart()">룰렛 돌리기</el-button>
@@ -90,7 +97,7 @@ export default {
           canvasId: 'myCanvas',
           numSegments: numSegments,
           segments: this.generateSegments(numSegments, object),
-          outerRadius: 170,
+          outerRadius: 200,
           pointerAngle: 90,
           pointerGuide: {
             // 'display' : true,
@@ -252,8 +259,8 @@ export default {
     showGuestBookView() {
       const screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
       const screenHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-      const windowWidth = 800;
-      const windowHeight = 600;
+      const windowWidth = 400;
+      const windowHeight = 400;
       const left = (screenWidth - windowWidth) / 2;
       const top = (screenHeight - windowHeight) / 2;
       const windowFeatures = `width=${windowWidth},height=${windowHeight},left=${left},top=${top}`;
@@ -269,5 +276,48 @@ export default {
 <style>
 .swal2-title {
   font-size: 20px;
+}
+
+.router-wrapper {
+  padding: 50px;
+}
+
+.roulette-wrapper {
+  position: relative;
+  width: 500px;
+  height: 400px;
+  padding: 50px 0;
+}
+
+.pin {
+  font-size: 3rem;
+  position: absolute;
+  left: 415px;
+  top: 50%;
+  transform: translate(-100%, -50%);
+}
+
+.item-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  margin-right: 20px;
+  margin-bottom: 10px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
+
+.delete-button {
+  margin-left: 5px;
+}
+
+.el-input--large {
+  width: 500px;
+  padding: 20px 0;
 }
 </style>
