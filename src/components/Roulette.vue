@@ -15,7 +15,7 @@
     <div>
       <el-input class="el-input--large mr-20" type="text" v-model="text" placeholder="여기에 항목을 입력하세요. (ex 딸기,사과,망고,...)" />
       <el-button type="warning" v-on:click="createSegments()">룰렛판 생성</el-button>
-      <el-button type="warning" v-on:click="changeColorSet()">컬러 {{ colorSet.name }}</el-button>
+      <el-button type="warning" v-on:click="changeColorSet()">컬러 : {{ colorSetList[colorSet].name }}</el-button>
     </div>
 
     <div>
@@ -50,7 +50,13 @@ export default {
       resultViewOnOff: false, // 룰렛결과보기 on/off
       resultAllList: [],
       anonymous: null, // 익명 사용자
-      colorSet: { name: '기본', type: null } // null : default / rainbow / pastel
+      colorSet: 0, // 0 : default / 1 : rainbow / 2 : pastel / 3 : rainbow-pastel
+      colorSetList: [
+        { name: '기본', type: null },
+        { name: 'Rainbow', type: 'rainbow' },
+        { name: '파스텔', type: 'pastel' },
+        { name: 'Rainbow 파스텔', type: 'rainbow-pastel' }
+      ]
     };
   },
 
@@ -133,12 +139,7 @@ export default {
     },
 
     changeColorSet() {
-      const list = [
-        { name: '기본', type: null },
-        { name: 'Rainbow', type: 'rainbow' },
-        { name: '파스텔', type: 'pastel' }
-      ];
-      this.colorSet = list[Math.floor(Math.random() * 3)];
+      this.colorSet = this.colorSet >= 3 ? 0 : ++this.colorSet;
 
       if (this.items.length > 0) {
         this.createSegments();
@@ -149,11 +150,13 @@ export default {
 
     //랜덤컬러
     getRandomColor(i, numSegments) {
-      switch (this.colorSet.type) {
+      switch (this.colorSetList[this.colorSet].type) {
         case 'pastel':
           return 'hsl(' + 360 * Math.random() + ',' + (25 + 70 * Math.random()) + '%,' + (70 + 10 * Math.random()) + '%)';
         case 'rainbow':
           return this.getRainbowRandomColor(i, numSegments);
+        case 'rainbow-pastel':
+          return this.getRainbowPastelRandomColor(i, numSegments);
         default:
           const letters = '0123456789ABCDEF';
           let color = '#';
@@ -178,6 +181,21 @@ export default {
         saturation -= change;
       }
       return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    },
+    getRainbowPastelRandomColor(i, length) {
+      let hue = Math.floor((i / length) * 341); // between 0 and 340
+      let saturation = 100;
+      let lightness = 50;
+
+      // color adjustment:
+      if (hue > 215 && hue < 265) {
+        const gain = 20;
+        let blueness = 1 - Math.abs(hue - 240) / 25;
+        let change = Math.floor(gain * blueness);
+        lightness += change;
+        saturation -= change;
+      }
+      return `hsl(${hue}, ${saturation}%, 80%)`;
     },
     // 새로고침
     // TODO : 새로고침 클릭 후 배열의 길이 어떻게 할지 고려하기
