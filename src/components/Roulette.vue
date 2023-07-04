@@ -5,7 +5,6 @@
       <span class="pin"> ◀︎ </span>
     </div>
 
-
     <div v-if="item !== null" class="item-list">
       <span v-for="(item, index) in items" class="item">
         {{ item }}
@@ -14,11 +13,12 @@
     </div>
 
     <div>
-      <el-input class="el-input--large" type="text" v-model="text" placeholder="여기에 항목을 입력하세요. (ex 딸기,사과,망고,...)" />
+      <el-input class="el-input--large mr-20" type="text" v-model="text" placeholder="여기에 항목을 입력하세요. (ex 딸기,사과,망고,...)" />
+      <el-button type="warning" v-on:click="createSegments()">룰렛판 생성</el-button>
+      <el-button type="warning" v-on:click="changeColorSet()">컬러 {{ colorSet.name }}</el-button>
     </div>
 
     <div>
-      <el-button type="primary" v-on:click="createSegments()">항목 추가</el-button>
       <el-button type="primary" v-on:click="rouletteStart()">룰렛 돌리기</el-button>
       <el-button id="resultViewText" type="primary" v-on:click="rouletteResultView()">룰렛 현황보기</el-button>
       <el-button type="primary" v-on:click="refreshSegments()">룰렛 새로고침</el-button>
@@ -49,7 +49,8 @@ export default {
       makeSegments: 0,
       resultViewOnOff: false, // 룰렛결과보기 on/off
       resultAllList: [],
-      anonymous: null // 익명 사용자
+      anonymous: null, // 익명 사용자
+      colorSet: { name: '기본', type: null } // null : default / rainbow / pastel
     };
   },
 
@@ -113,14 +114,16 @@ export default {
       if (object === undefined) {
         for (let i = 1; i <= numSegments; i++) {
           segments.push({
-            fillStyle: this.getRandomColor(),
+            fillStyle: this.getRandomColor(i, numSegments),
+            // fillStyle: this.getRandomColor(),
             text: ``
           });
         }
       } else {
         for (let i = 0; i <= numSegments; i++) {
           segments.push({
-            fillStyle: this.getRandomColor(),
+            fillStyle: this.getRandomColor(i, numSegments),
+            // fillStyle: this.getRandomColor(),
             text: object[i]
             // 'text': ''
           });
@@ -128,14 +131,53 @@ export default {
       }
       return segments;
     },
-    //랜덤컬러
-    getRandomColor() {
-      const letters = '0123456789ABCDEF';
-      let color = '#';
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
+
+    changeColorSet() {
+      const list = [
+        { name: '기본', type: null },
+        { name: 'Rainbow', type: 'rainbow' },
+        { name: '파스텔', type: 'pastel' }
+      ];
+      this.colorSet = list[Math.floor(Math.random() * 3)];
+
+      if (this.items.length > 0) {
+        this.createSegments();
+      } else {
+        this.createWheel(3);
       }
-      return color;
+    },
+
+    //랜덤컬러
+    getRandomColor(i, numSegments) {
+      switch (this.colorSet.type) {
+        case 'pastel':
+          return 'hsl(' + 360 * Math.random() + ',' + (25 + 70 * Math.random()) + '%,' + (70 + 10 * Math.random()) + '%)';
+        case 'rainbow':
+          return this.getRainbowRandomColor(i, numSegments);
+        default:
+          const letters = '0123456789ABCDEF';
+          let color = '#';
+          for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+          }
+          return color;
+      }
+    },
+
+    getRainbowRandomColor(i, length) {
+      let hue = Math.floor((i / length) * 341); // between 0 and 340
+      let saturation = 100;
+      let lightness = 50;
+
+      // color adjustment:
+      if (hue > 215 && hue < 265) {
+        const gain = 20;
+        let blueness = 1 - Math.abs(hue - 240) / 25;
+        let change = Math.floor(gain * blueness);
+        lightness += change;
+        saturation -= change;
+      }
+      return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     },
     // 새로고침
     // TODO : 새로고침 클릭 후 배열의 길이 어떻게 할지 고려하기
@@ -177,7 +219,7 @@ export default {
         this.theWheel.segments[x].fillStyle = 'gray';
       }
 
-      this.theWheel.segments[winningSegmentNumber].fillStyle = 'white';
+      this.theWheel.segments[winningSegmentNumber].fillStyle = 'gold';
       this.theWheel.draw();
       this.itemResult = winningSegment.text;
       Swal.fire({
@@ -319,5 +361,9 @@ export default {
 .el-input--large {
   width: 500px;
   padding: 20px 0;
+}
+
+.mr-20 {
+  margin-right: 20px;
 }
 </style>
